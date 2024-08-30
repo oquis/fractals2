@@ -96,17 +96,20 @@ export default function FractalGenerator() {
           </Label>
         </div>
         <div>
-          <Label htmlFor="iterations">Iterations</Label>
-          <Input
-            id="iterations"
-            type="number"
-            value={iterations}
-            onChange={(e) =>
-              setIterations(Math.max(1, parseInt(e.target.value) || 1))
+          <h2 className="text-lg font-semibold mb-2">Iterations</h2>
+          <Slider
+            value={[iterations]}
+            onValueChange={([value]) =>
+              setIterations(Math.max(1, Math.round(value)))
             }
-            min="1"
+            min={1}
+            max={1000}
+            step={1}
             className="w-full"
           />
+          <div className="text-sm text-gray-600 mt-2">
+            Iterations: {iterations}
+          </div>
         </div>
         <div>
           <h2 className="text-lg font-semibold mb-2">Scale</h2>
