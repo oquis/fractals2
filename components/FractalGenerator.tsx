@@ -12,7 +12,7 @@ export default function Component() {
   const [isJulia, setIsJulia] = useState(false);
   const [juliaReal, setJuliaReal] = useState(-0.7);
   const [juliaImag, setJuliaImag] = useState(0.27015);
-  const [iterations, setIterations] = useState(5); // Default set to 5
+  const [iterations, setIterations] = useState(100);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -74,39 +74,8 @@ export default function Component() {
     ctx.putImageData(imageData, 0, 0);
   }, [hue, isJulia, juliaReal, juliaImag, iterations]);
 
-  function hslToRgb(h: number, s: number, l: number): [number, number, number] {
-    let r, g, b;
-
-    if (s === 0) {
-      r = g = b = l;
-    } else {
-      const hue2rgb = (p: number, q: number, t: number) => {
-        if (t < 0) t += 1;
-        if (t > 1) t -= 1;
-        if (t < 1 / 6) return p + (q - p) * 6 * t;
-        if (t < 1 / 2) return q;
-        if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-        return p;
-      };
-
-      const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-      const p = 2 * l - q;
-      r = hue2rgb(p, q, h + 1 / 3);
-      g = hue2rgb(p, q, h);
-      b = hue2rgb(p, q, h - 1 / 3);
-    }
-
-    return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
-  }
-
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
-      <canvas
-        ref={canvasRef}
-        width={800}
-        height={800}
-        className="border border-gray-300 shadow-lg mb-4"
-      />
+    <div className="flex items-start gap-10 min-h-screen bg-gray-100 p-4">
       <div className="w-full max-w-md bg-white p-4 rounded-lg shadow space-y-4">
         <div className="flex items-center space-x-2">
           <Switch
@@ -178,6 +147,37 @@ export default function Component() {
           </div>
         )}
       </div>
+      <canvas
+        ref={canvasRef}
+        width={800}
+        height={800}
+        className="border border-gray-300 shadow-lg mb-4"
+      />
     </div>
   );
+}
+
+function hslToRgb(h: number, s: number, l: number): [number, number, number] {
+  let r, g, b;
+
+  if (s === 0) {
+    r = g = b = l;
+  } else {
+    const hue2rgb = (p: number, q: number, t: number) => {
+      if (t < 0) t += 1;
+      if (t > 1) t -= 1;
+      if (t < 1 / 6) return p + (q - p) * 6 * t;
+      if (t < 1 / 2) return q;
+      if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+      return p;
+    };
+
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    const p = 2 * l - q;
+    r = hue2rgb(p, q, h + 1 / 3);
+    g = hue2rgb(p, q, h);
+    b = hue2rgb(p, q, h - 1 / 3);
+  }
+
+  return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
 }
