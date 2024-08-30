@@ -6,7 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
-export default function Component() {
+export default function FractalGenerator() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [hue, setHue] = useState(0);
   const [isJulia, setIsJulia] = useState(false);
