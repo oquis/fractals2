@@ -76,10 +76,15 @@ export default function FractalGenerator() {
 
     ctx.putImageData(imageData, 0, 0);
   }, [hue, isJulia, juliaReal, juliaImag, iterations, scale, panX, panY]);
-
   return (
-    <div className="flex items-start gap-10 min-h-screen bg-gray-100 p-4">
-      <div className="w-full max-w-md bg-white p-4 rounded-lg shadow space-y-4">
+    <div className="flex flex-col md:flex-row items-start md:gap-10 min-h-screen bg-gray-100 p-10">
+      <canvas
+        ref={canvasRef}
+        width={800}
+        height={800}
+        className="w-full md:w-auto border border-gray-300 shadow-lg mb-4 order-first md:order-last"
+      />
+      <div className="w-full md:max-w-md bg-white p-4 rounded-lg shadow space-y-4">
         <div className="flex items-center space-x-2">
           <Switch
             id="fractal-type"
@@ -192,12 +197,6 @@ export default function FractalGenerator() {
           </div>
         )}
       </div>
-      <canvas
-        ref={canvasRef}
-        width={800}
-        height={800}
-        className="border border-gray-300 shadow-lg mb-4"
-      />
     </div>
   );
 }
