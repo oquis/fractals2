@@ -13,6 +13,7 @@ export default function Component() {
   const [juliaReal, setJuliaReal] = useState(-0.7);
   const [juliaImag, setJuliaImag] = useState(0.27015);
   const [iterations, setIterations] = useState(100);
+  const [scale, setScale] = useState(4);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -24,7 +25,7 @@ export default function Component() {
     const width = canvas.width;
     const height = canvas.height;
 
-    const scale = 4 / width;
+    const scaleValue = scale / width;
 
     const imageData = ctx.createImageData(width, height);
 
@@ -32,13 +33,13 @@ export default function Component() {
       for (let py = 0; py < height; py++) {
         let x0, y0, x, y;
         if (isJulia) {
-          x = (px - width / 2) * scale;
-          y = (py - height / 2) * scale;
+          x = (px - width / 2) * scaleValue;
+          y = (py - height / 2) * scaleValue;
           x0 = juliaReal;
           y0 = juliaImag;
         } else {
-          x0 = (px - width / 2) * scale;
-          y0 = (py - height / 2) * scale;
+          x0 = (px - width / 2) * scaleValue;
+          y0 = (py - height / 2) * scaleValue;
           x = 0;
           y = 0;
         }
@@ -72,7 +73,7 @@ export default function Component() {
     }
 
     ctx.putImageData(imageData, 0, 0);
-  }, [hue, isJulia, juliaReal, juliaImag, iterations]);
+  }, [hue, isJulia, juliaReal, juliaImag, iterations, scale]);
 
   return (
     <div className="flex items-start gap-10 min-h-screen bg-gray-100 p-4">
@@ -99,6 +100,20 @@ export default function Component() {
             min="1"
             className="w-full"
           />
+        </div>
+        <div>
+          <h2 className="text-lg font-semibold mb-2">Scale</h2>
+          <Slider
+            value={[scale]}
+            onValueChange={([value]) => setScale(value)}
+            min={0.5}
+            max={10}
+            step={0.1}
+            className="w-full"
+          />
+          <div className="text-sm text-gray-600 mt-2">
+            Scale: {scale.toFixed(2)}
+          </div>
         </div>
         <div>
           <h2 className="text-lg font-semibold mb-2">Color Control</h2>
