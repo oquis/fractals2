@@ -14,6 +14,8 @@ export default function FractalGenerator() {
   const [juliaImag, setJuliaImag] = useState(0.27015);
   const [iterations, setIterations] = useState(100);
   const [scale, setScale] = useState(4);
+  const [panX, setPanX] = useState(0);
+  const [panY, setPanY] = useState(0);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -33,13 +35,13 @@ export default function FractalGenerator() {
       for (let py = 0; py < height; py++) {
         let x0, y0, x, y;
         if (isJulia) {
-          x = (px - width / 2) * scaleValue;
-          y = (py - height / 2) * scaleValue;
+          x = (px - width / 2) * scaleValue + panX;
+          y = (py - height / 2) * scaleValue + panY;
           x0 = juliaReal;
           y0 = juliaImag;
         } else {
-          x0 = (px - width / 2) * scaleValue;
-          y0 = (py - height / 2) * scaleValue;
+          x0 = (px - width / 2) * scaleValue + panX;
+          y0 = (py - height / 2) * scaleValue + panY;
           x = 0;
           y = 0;
         }
@@ -73,7 +75,7 @@ export default function FractalGenerator() {
     }
 
     ctx.putImageData(imageData, 0, 0);
-  }, [hue, isJulia, juliaReal, juliaImag, iterations, scale]);
+  }, [hue, isJulia, juliaReal, juliaImag, iterations, scale, panX, panY]);
 
   return (
     <div className="flex items-start gap-10 min-h-screen bg-gray-100 p-4">
@@ -113,6 +115,34 @@ export default function FractalGenerator() {
           />
           <div className="text-sm text-gray-600 mt-2">
             Scale: {scale.toFixed(2)}
+          </div>
+        </div>
+        <div>
+          <h2 className="text-lg font-semibold mb-2">Pan X</h2>
+          <Slider
+            value={[panX]}
+            onValueChange={([value]) => setPanX(value)}
+            min={-2}
+            max={2}
+            step={0.01}
+            className="w-full"
+          />
+          <div className="text-sm text-gray-600 mt-2">
+            Pan X: {panX.toFixed(2)}
+          </div>
+        </div>
+        <div>
+          <h2 className="text-lg font-semibold mb-2">Pan Y</h2>
+          <Slider
+            value={[panY]}
+            onValueChange={([value]) => setPanY(value)}
+            min={-2}
+            max={2}
+            step={0.01}
+            className="w-full"
+          />
+          <div className="text-sm text-gray-600 mt-2">
+            Pan Y: {panY.toFixed(2)}
           </div>
         </div>
         <div>
