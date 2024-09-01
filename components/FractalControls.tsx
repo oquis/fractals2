@@ -1,6 +1,6 @@
-import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 interface FractalControlsProps {
   isJulia: boolean;
@@ -41,15 +41,22 @@ export function FractalControls({
 }: FractalControlsProps) {
   return (
     <div className="w-full md:max-w-md bg-white p-4 rounded-lg shadow space-y-4">
-      <div className="flex items-center space-x-2">
-        <Switch
-          id="fractal-type"
-          checked={isJulia}
-          onCheckedChange={setIsJulia}
-        />
-        <Label htmlFor="fractal-type">
-          {isJulia ? "Julia Set" : "Mandelbrot Set"}
-        </Label>
+      <div>
+        <h2 className="text-lg font-semibold mb-2">Fractal Set</h2>
+        <RadioGroup
+          defaultValue={isJulia ? "julia" : "mandelbrot"}
+          onValueChange={(value) => setIsJulia(value === "julia")}
+          className="flex space-x-4"
+        >
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="mandelbrot" id="mandelbrot" />
+            <Label htmlFor="mandelbrot">Mandelbrot Set</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="julia" id="julia" />
+            <Label htmlFor="julia">Julia Set</Label>
+          </div>
+        </RadioGroup>
       </div>
       <div>
         <h2 className="text-lg font-semibold mb-2">Iterations</h2>
