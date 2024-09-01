@@ -33,7 +33,7 @@ export function FractalCanvas({
     const width = canvas.width;
     const height = canvas.height;
 
-    const scaleValue = scale / width;
+    const scaleValue = scale / Math.min(width, height);
 
     const imageData = ctx.createImageData(width, height);
 

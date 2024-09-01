@@ -77,15 +77,15 @@ export function FractalControls({
       <div>
         <h2 className="text-lg font-semibold mb-2">Scale</h2>
         <Slider
-          value={[scale]}
-          onValueChange={([value]) => setScale(value)}
-          min={0.5}
-          max={10}
+          value={[Math.log(scale)]} // Use logarithmic scale
+          onValueChange={([value]) => setScale(Math.exp(value))}
+          min={Math.log(0.000001)} // Minimum scale (zoomed in)
+          max={Math.log(10)} // Maximum scale (zoomed out)
           step={0.1}
           className="w-full"
         />
         <div className="text-sm text-gray-600 mt-2">
-          Scale: {scale.toFixed(2)}
+          Scale: {scale.toExponential(2)}
         </div>
       </div>
       <div>
