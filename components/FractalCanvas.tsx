@@ -11,16 +11,63 @@ interface FractalCanvasProps {
   panY: number;
 }
 
-export function FractalCanvas({
-  hue,
-  isJulia,
-  juliaReal,
-  juliaImag,
-  iterations,
-  scale,
-  panX,
-  panY,
-}: FractalCanvasProps) {
+function getFractalPixelData(
+  props: FractalCanvasProps,
+  width: number,
+  height: number,
+): ImageData {
+  const { hue, isJulia, juliaReal, juliaImag, iterations, scale, panX, panY } =
+    props;
+  const scaleValue = scale / Math.min(width, height);
+  const imageData = new ImageData(width, height);
+
+  for (let px = 0; px < width; px++) {
+    for (let py = 0; py < height; py++) {
+      let x0, y0, x, y;
+      if (isJulia) {
+        x = (px - width / 2) * scaleValue + panX;
+        y = (py - height / 2) * scaleValue + panY;
+        x0 = juliaReal;
+        y0 = juliaImag;
+      } else {
+        x0 = (px - width / 2) * scaleValue + panX;
+        y0 = (py - height / 2) * scaleValue + panY;
+        x = 0;
+        y = 0;
+      }
+
+      let iteration = 0;
+
+      while (x * x + y * y <= 4 && iteration < iterations) {
+        const xtemp: number = x * x - y * y + x0;
+        y = 2 * x * y + y0;
+        x = xtemp;
+        iteration++;
+      }
+
+      const pixelIndex = (py * width + px) * 4;
+      if (iteration === iterations) {
+        imageData.data[pixelIndex] = 0;
+        imageData.data[pixelIndex + 1] = 0;
+        imageData.data[pixelIndex + 2] = 0;
+      } else {
+        const [r, g, b] = hslToRgb(
+          ((hue + iteration * 10) % 360) / 360,
+          1,
+          0.5,
+        );
+        imageData.data[pixelIndex] = r;
+        imageData.data[pixelIndex + 1] = g;
+        imageData.data[pixelIndex + 2] = b;
+      }
+      imageData.data[pixelIndex + 3] = 255;
+    }
+  }
+
+  return imageData;
+}
+
+export function FractalCanvas(props: FractalCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -33,55 +80,9 @@ export function FractalCanvas({
     const width = canvas.width;
     const height = canvas.height;
 
-    const scaleValue = scale / Math.min(width, height);
-
-    const imageData = ctx.createImageData(width, height);
-
-    for (let px = 0; px < width; px++) {
-      for (let py = 0; py < height; py++) {
-        let x0, y0, x, y;
-        if (isJulia) {
-          x = (px - width / 2) * scaleValue + panX;
-          y = (py - height / 2) * scaleValue + panY;
-          x0 = juliaReal;
-          y0 = juliaImag;
-        } else {
-          x0 = (px - width / 2) * scaleValue + panX;
-          y0 = (py - height / 2) * scaleValue + panY;
-          x = 0;
-          y = 0;
-        }
-
-        let iteration = 0;
-
-        while (x * x + y * y <= 4 && iteration < iterations) {
-          const xtemp: number = x * x - y * y + x0;
-          y = 2 * x * y + y0;
-          x = xtemp;
-          iteration++;
-        }
-
-        const pixelIndex = (py * width + px) * 4;
-        if (iteration === iterations) {
-          imageData.data[pixelIndex] = 0;
-          imageData.data[pixelIndex + 1] = 0;
-          imageData.data[pixelIndex + 2] = 0;
-        } else {
-          const [r, g, b] = hslToRgb(
-            ((hue + iteration * 10) % 360) / 360,
-            1,
-            0.5,
-          );
-          imageData.data[pixelIndex] = r;
-          imageData.data[pixelIndex + 1] = g;
-          imageData.data[pixelIndex + 2] = b;
-        }
-        imageData.data[pixelIndex + 3] = 255;
-      }
-    }
-
+    const imageData = getFractalPixelData(props, width, height);
     ctx.putImageData(imageData, 0, 0);
-  }, [hue, isJulia, juliaReal, juliaImag, iterations, scale, panX, panY]);
+  }, [props]);
 
   return (
     <canvas

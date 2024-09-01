@@ -1,6 +1,8 @@
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
 
 interface FractalControlsProps {
   isJulia: boolean;
@@ -39,13 +41,36 @@ export function FractalControls({
   juliaImag,
   setJuliaImag,
 }: FractalControlsProps) {
+  const [fractalType, setFractalType] = useState(
+    isJulia ? "julia" : "mandelbrot",
+  );
+
+  useEffect(() => {
+    setFractalType(isJulia ? "julia" : "mandelbrot");
+  }, [isJulia]);
+
+  const resetControls = () => {
+    setIsJulia(false);
+    setFractalType("mandelbrot");
+    setIterations(100);
+    setScale(4);
+    setPanX(0);
+    setPanY(0);
+    setHue(0);
+    setJuliaReal(-0.7);
+    setJuliaImag(0.27015);
+  };
+
   return (
     <div className="w-full md:max-w-md bg-white p-4 rounded-lg shadow space-y-4">
       <div>
         <h2 className="text-lg font-semibold mb-2">Fractal Set</h2>
         <RadioGroup
-          defaultValue={isJulia ? "julia" : "mandelbrot"}
-          onValueChange={(value) => setIsJulia(value === "julia")}
+          value={fractalType}
+          onValueChange={(value) => {
+            setFractalType(value);
+            setIsJulia(value === "julia");
+          }}
           className="flex space-x-4"
         >
           <div className="flex items-center space-x-2">
@@ -162,6 +187,9 @@ export function FractalControls({
           </div>
         </div>
       )}
+      <Button onClick={resetControls} className="w-full">
+        Reset Controls
+      </Button>
     </div>
   );
 }
