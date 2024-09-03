@@ -13,7 +13,6 @@ interface FractalCanvasProps {
   panY: number;
   renderer?: RenderFunction;
 }
-
 export function FractalCanvas(props: FractalCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -34,13 +33,13 @@ export function FractalCanvas(props: FractalCanvasProps) {
       panY: props.panY,
     };
 
-    const fractalData = computeFractalSet(
+    const { data: fractalData, maxIterations } = computeFractalSet(
       fractalParams,
       canvas.width,
       canvas.height,
     );
     const renderFn = props.renderer || canvasRenderer;
-    renderFn(fractalData, props.hue, ctx);
+    renderFn(fractalData, props.hue, ctx, maxIterations);
   }, [props]);
 
   return (

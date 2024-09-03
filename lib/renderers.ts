@@ -1,8 +1,18 @@
 export interface RenderFunction {
-  (fractalData: number[][], hue: number, ctx: CanvasRenderingContext2D): void;
+  (
+    fractalData: number[][],
+    hue: number,
+    ctx: CanvasRenderingContext2D,
+    maxIterations: number,
+  ): void;
 }
 
-export const canvasRenderer: RenderFunction = (fractalData, hue, ctx) => {
+export const canvasRenderer: RenderFunction = (
+  fractalData,
+  hue,
+  ctx,
+  maxIterations,
+) => {
   const width = fractalData.length;
   const height = fractalData[0].length;
   const imageData = ctx.createImageData(width, height);
@@ -12,7 +22,7 @@ export const canvasRenderer: RenderFunction = (fractalData, hue, ctx) => {
       const iteration = fractalData[px][py];
       const pixelIndex = (py * width + px) * 4;
 
-      if (iteration === fractalData[px][py]) {
+      if (iteration === maxIterations) {
         imageData.data[pixelIndex] = 0;
         imageData.data[pixelIndex + 1] = 0;
         imageData.data[pixelIndex + 2] = 0;

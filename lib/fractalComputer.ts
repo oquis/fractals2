@@ -12,7 +12,7 @@ export function computeFractalSet(
   params: FractalParams,
   width: number,
   height: number,
-): number[][] {
+): { data: number[][]; maxIterations: number } {
   const { isJulia, juliaReal, juliaImag, iterations, scale, panX, panY } =
     params;
   const scaleValue = scale / Math.min(width, height);
@@ -38,7 +38,7 @@ export function computeFractalSet(
     }
   }
 
-  return result;
+  return { data: result, maxIterations: iterations };
 }
 
 function computeIteration(
