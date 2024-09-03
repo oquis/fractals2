@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { computeFractalSet } from "@/lib/fractalComputer";
 import { canvasRenderer, RenderFunction } from "@/lib/renderers";
+import { webglRenderer } from "@/lib/webglRenderer";
 
 interface FractalCanvasProps {
   hue: number;
@@ -20,7 +21,7 @@ export function FractalCanvas(props: FractalCanvasProps) {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("webgl") || canvas.getContext("2d");
     if (!ctx) return;
 
     const fractalParams = {
@@ -38,7 +39,8 @@ export function FractalCanvas(props: FractalCanvasProps) {
       canvas.width,
       canvas.height,
     );
-    const renderFn = props.renderer || canvasRenderer;
+    const renderFn =
+      ctx instanceof WebGLRenderingContext ? webglRenderer : canvasRenderer;
     renderFn(fractalData, props.hue, ctx, maxIterations);
   }, [props]);
 
