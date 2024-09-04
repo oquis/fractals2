@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { computeFractalSet } from "@/lib/fractalComputer";
-import { canvasRenderer, RenderFunction } from "@/lib/renderers";
+import { canvasRenderer } from "@/lib/renderers";
 import { webglRenderer } from "@/lib/webglRenderer";
 
 interface FractalCanvasProps {
@@ -12,7 +12,6 @@ interface FractalCanvasProps {
   scale: number;
   panX: number;
   panY: number;
-  renderer?: RenderFunction;
 }
 export function FractalCanvas(props: FractalCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
