@@ -49,6 +49,16 @@ export function FractalControls({
     setFractalType(isJulia ? "julia" : "mandelbrot");
   }, [isJulia]);
 
+  const calculatePanStep = (scale: number) => {
+    // As scale decreases (zooming in), step should decrease
+    return Math.max(0.001 / scale, 0.00000001); // Minimum step of 1e-8
+  };
+
+  // Use a fixed range for panning
+  const PAN_RANGE = 2; // This gives a total range of -2 to 2
+
+  const panStep = calculatePanStep(scale);
+
   const resetControls = () => {
     setIsJulia(false);
     setFractalType("mandelbrot");
@@ -118,27 +128,38 @@ export function FractalControls({
         <Slider
           value={[panX]}
           onValueChange={([value]) => setPanX(value)}
-          min={-2}
-          max={2}
-          step={0.01}
+          min={-PAN_RANGE}
+          max={PAN_RANGE}
+          step={panStep}
           className="w-full"
         />
         <div className="text-sm text-gray-600 mt-2">
-          Pan X: {panX.toFixed(2)}
+          Pan X:{" "}
+          {panX.toFixed(
+            Math.max(2, Math.abs(Math.floor(Math.log10(panStep))) + 2),
+          )}
+          {" | "}Step: {panStep}
+          {" | "}Range: {PAN_RANGE}
         </div>
       </div>
+
       <div>
         <h2 className="text-lg font-semibold mb-2">Pan Y</h2>
         <Slider
           value={[panY]}
           onValueChange={([value]) => setPanY(value)}
-          min={-2}
-          max={2}
-          step={0.01}
+          min={-PAN_RANGE}
+          max={PAN_RANGE}
+          step={panStep}
           className="w-full"
         />
         <div className="text-sm text-gray-600 mt-2">
-          Pan Y: {panY.toFixed(2)}
+          Pan Y:{" "}
+          {panY.toFixed(
+            Math.max(2, Math.abs(Math.floor(Math.log10(panStep))) + 2),
+          )}
+          {" | "}Step: {panStep}
+          {" | "}Range: {PAN_RANGE}
         </div>
       </div>
       <div>
