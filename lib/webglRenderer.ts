@@ -8,57 +8,68 @@ const vertexShaderSource = `
 `;
 
 const fragmentShaderSource = `
-  precision highp float;
+  precision mediump float;
+
   uniform vec2 u_resolution;
   uniform float u_scale;
   uniform vec2 u_pan;
   uniform int u_maxIterations;
   uniform float u_hue;
+  uniform bool u_isJulia;
+  uniform vec2 u_juliaC;
 
   vec3 hslToRgb(float h, float s, float l) {
-    float c = (1.0 - abs(2.0 * l - 1.0)) * s;
-    float x = c * (1.0 - abs(mod(h / 60.0, 2.0) - 1.0));
-    float m = l - c / 2.0;
-    vec3 rgb;
-    if (h < 60.0) rgb = vec3(c, x, 0.0);
-    else if (h < 120.0) rgb = vec3(x, c, 0.0);
-    else if (h < 180.0) rgb = vec3(0.0, c, x);
-    else if (h < 240.0) rgb = vec3(0.0, x, c);
-    else if (h < 300.0) rgb = vec3(x, 0.0, c);
-    else rgb = vec3(c, 0.0, x);
-    return rgb + m;
+    vec3 rgb = clamp(abs(mod(h * 6.0 + vec3(0.0, 4.0, 2.0), 6.0) - 3.0) - 1.0, 0.0, 1.0);
+    return l + s * (rgb - 0.5) * (1.0 - abs(2.0 * l - 1.0));
   }
 
   void main() {
-    vec2 z, c;
-    c.x = (gl_FragCoord.x - u_resolution.x / 2.0) * u_scale + u_pan.x;
-    c.y = (gl_FragCoord.y - u_resolution.y / 2.0) * u_scale + u_pan.y;
-    z = c;
-    int i;
-    for(i = 0; i < u_maxIterations; i++) {
-      float x = (z.x * z.x - z.y * z.y) + c.x;
-      float y = (z.y * z.x + z.x * z.y) + c.y;
-      if((x * x + y * y) > 4.0) break;
-      z.x = x;
-      z.y = y;
+    vec2 uv = (gl_FragCoord.xy - 0.5 * u_resolution) / min(u_resolution.x, u_resolution.y);
+    vec2 c = uv * u_scale + u_pan;
+    vec2 z;
+
+    if (u_isJulia) {
+      z = c;
+      c = u_juliaC;
+    } else {
+      z = vec2(0.0, 0.0);
     }
-    if (i == u_maxIterations) {
+
+    int i = 0;
+    for (int j = 0; j < 1000; j++) {
+      if (i >= u_maxIterations || dot(z, z) > 4.0) break;
+      float x = z.x * z.x - z.y * z.y + c.x;
+      float y = 2.0 * z.x * z.y + c.y;
+      z = vec2(x, y);
+      i++;
+    }
+
+    if (i >= u_maxIterations) {
       gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
     } else {
-      float hue = mod(u_hue + float(i) * 10.0, 360.0);
+      float t = float(i) / float(u_maxIterations);
+      float hue = mod(u_hue + t * 360.0, 360.0) / 360.0;
       vec3 color = hslToRgb(hue, 1.0, 0.5);
       gl_FragColor = vec4(color, 1.0);
     }
   }
 `;
 
-function createShader(gl: WebGLRenderingContext, type: number, source: string) {
+function createShader(
+  gl: WebGLRenderingContext,
+  type: number,
+  source: string,
+): WebGLShader | null {
   const shader = gl.createShader(type);
-  gl.shaderSource(shader!, source);
-  gl.compileShader(shader!);
-  if (!gl.getShaderParameter(shader!, gl.COMPILE_STATUS)) {
+  if (!shader) {
+    console.error("Failed to create shader object");
+    return null;
+  }
+  gl.shaderSource(shader, source);
+  gl.compileShader(shader);
+  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
     console.error(
-      "An error occurred compiling the shaders: " + gl.getShaderInfoLog(shader),
+      `An error occurred compiling the shaders: ${gl.getShaderInfoLog(shader)}\n\nShader Source:\n${source}`,
     );
     gl.deleteShader(shader);
     return null;
@@ -70,16 +81,21 @@ function createProgram(
   gl: WebGLRenderingContext,
   vertexShader: WebGLShader,
   fragmentShader: WebGLShader,
-) {
+): WebGLProgram | null {
   const program = gl.createProgram();
-  gl.attachShader(program!, vertexShader);
-  gl.attachShader(program!, fragmentShader);
-  gl.linkProgram(program!);
-  if (!gl.getProgramParameter(program!, gl.LINK_STATUS)) {
+  if (!program) {
+    console.error("Failed to create program");
+    return null;
+  }
+  gl.attachShader(program, vertexShader);
+  gl.attachShader(program, fragmentShader);
+  gl.linkProgram(program);
+  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
     console.error(
       "Unable to initialize the shader program: " +
         gl.getProgramInfoLog(program),
     );
+    gl.deleteProgram(program);
     return null;
   }
   return program;
@@ -90,23 +106,38 @@ export const webglRenderer: RenderFunction = (
   hue,
   ctx,
   maxIterations,
+  params,
 ) => {
-  const gl = ctx.canvas.getContext("webgl") as WebGLRenderingContext;
-  if (!gl) {
-    console.error("WebGL not supported");
+  const gl = ctx as WebGLRenderingContext;
+
+  console.log("Creating vertex shader...");
+  const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
+  if (!vertexShader) {
+    console.error("Failed to create vertex shader");
     return;
   }
 
-  const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource)!;
+  console.log("Creating fragment shader...");
   const fragmentShader = createShader(
     gl,
     gl.FRAGMENT_SHADER,
     fragmentShaderSource,
-  )!;
-  const program = createProgram(gl, vertexShader, fragmentShader)!;
+  );
+  if (!fragmentShader) {
+    console.error("Failed to create fragment shader");
+    return;
+  }
+
+  console.log("Creating shader program...");
+  const program = createProgram(gl, vertexShader, fragmentShader);
+  if (!program) {
+    console.error("Failed to create shader program");
+    return;
+  }
 
   gl.useProgram(program);
 
+  // Set up attributes and uniforms
   const positionAttributeLocation = gl.getAttribLocation(program, "a_position");
   const positionBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
@@ -116,29 +147,25 @@ export const webglRenderer: RenderFunction = (
   gl.enableVertexAttribArray(positionAttributeLocation);
   gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
 
-  const resolutionUniformLocation = gl.getUniformLocation(
-    program,
-    "u_resolution",
-  );
-  gl.uniform2f(resolutionUniformLocation, gl.canvas.width, gl.canvas.height);
+  // Set up uniforms
+  const uniforms = {
+    u_resolution: gl.getUniformLocation(program, "u_resolution"),
+    u_scale: gl.getUniformLocation(program, "u_scale"),
+    u_pan: gl.getUniformLocation(program, "u_pan"),
+    u_maxIterations: gl.getUniformLocation(program, "u_maxIterations"),
+    u_hue: gl.getUniformLocation(program, "u_hue"),
+    u_isJulia: gl.getUniformLocation(program, "u_isJulia"),
+    u_juliaC: gl.getUniformLocation(program, "u_juliaC"),
+  };
 
-  const scaleUniformLocation = gl.getUniformLocation(program, "u_scale");
-  gl.uniform1f(
-    scaleUniformLocation,
-    4 / Math.min(gl.canvas.width, gl.canvas.height),
-  );
-
-  const panUniformLocation = gl.getUniformLocation(program, "u_pan");
-  gl.uniform2f(panUniformLocation, 0, 0);
-
-  const maxIterationsUniformLocation = gl.getUniformLocation(
-    program,
-    "u_maxIterations",
-  );
-  gl.uniform1i(maxIterationsUniformLocation, maxIterations);
-
-  const hueUniformLocation = gl.getUniformLocation(program, "u_hue");
-  gl.uniform1f(hueUniformLocation, hue);
+  // Set uniform values
+  gl.uniform2f(uniforms.u_resolution, gl.canvas.width, gl.canvas.height);
+  gl.uniform1f(uniforms.u_scale, params.scale);
+  gl.uniform2f(uniforms.u_pan, params.panX, params.panY);
+  gl.uniform1i(uniforms.u_maxIterations, maxIterations);
+  gl.uniform1f(uniforms.u_hue, hue);
+  gl.uniform1i(uniforms.u_isJulia, params.isJulia ? 1 : 0);
+  gl.uniform2f(uniforms.u_juliaC, params.juliaReal, params.juliaImag);
 
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
   gl.clearColor(0, 0, 0, 0);

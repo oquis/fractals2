@@ -39,9 +39,10 @@ export function FractalCanvas(props: FractalCanvasProps) {
       canvas.width,
       canvas.height,
     );
+
     const renderFn =
       ctx instanceof WebGLRenderingContext ? webglRenderer : canvasRenderer;
-    renderFn(fractalData, props.hue, ctx, maxIterations);
+    renderFn(fractalData, props.hue, ctx, maxIterations, fractalParams);
   }, [props]);
 
   return (

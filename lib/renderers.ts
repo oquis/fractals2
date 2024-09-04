@@ -2,8 +2,17 @@ export interface RenderFunction {
   (
     fractalData: number[][],
     hue: number,
-    ctx: CanvasRenderingContext2D,
+    ctx: CanvasRenderingContext2D | WebGLRenderingContext,
     maxIterations: number,
+    params: {
+      isJulia: boolean;
+      juliaReal: number;
+      juliaImag: number;
+      iterations: number;
+      scale: number;
+      panX: number;
+      panY: number;
+    },
   ): void;
 }
 
@@ -13,6 +22,11 @@ export const canvasRenderer: RenderFunction = (
   ctx,
   maxIterations,
 ) => {
+  if (!(ctx instanceof CanvasRenderingContext2D)) {
+    console.error("Canvas renderer requires CanvasRenderingContext2D");
+    return;
+  }
+
   const width = fractalData.length;
   const height = fractalData[0].length;
   const imageData = ctx.createImageData(width, height);
