@@ -1,8 +1,38 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FractalCanvas } from "./FractalCanvas";
 import { FractalControls } from "./FractalControls";
+import { Button } from "./ui/button";
+
+interface FractalParams {
+  hue: number;
+  isJulia: boolean;
+  juliaReal: number;
+  juliaImag: number;
+  iterations: number;
+  scale: number;
+  panX: number;
+  panY: number;
+}
+
+const STORAGE_KEY = "oquis.fractalParams";
+
+// Function to store params in local storage
+const storeParams = (params: FractalParams) => {
+  if (typeof window !== "undefined") {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(params));
+  }
+};
+
+// Function to load params from local storage
+const loadParams = (): FractalParams | null => {
+  if (typeof window !== "undefined") {
+    const storedParams = localStorage.getItem(STORAGE_KEY);
+    return storedParams ? JSON.parse(storedParams) : null;
+  }
+  return null;
+};
 
 export default function FractalGenerator() {
   const [hue, setHue] = useState(0);
@@ -13,6 +43,34 @@ export default function FractalGenerator() {
   const [scale, setScale] = useState(4);
   const [panX, setPanX] = useState(0);
   const [panY, setPanY] = useState(0);
+
+  const saveCurrentParams = () => {
+    const params: FractalParams = {
+      hue,
+      isJulia,
+      juliaReal,
+      juliaImag,
+      iterations,
+      scale,
+      panX,
+      panY,
+    };
+    storeParams(params);
+  };
+
+  const loadSavedParams = () => {
+    const savedParams = loadParams();
+    if (savedParams) {
+      setHue(savedParams.hue);
+      setIsJulia(savedParams.isJulia);
+      setJuliaReal(savedParams.juliaReal);
+      setJuliaImag(savedParams.juliaImag);
+      setIterations(savedParams.iterations);
+      setScale(savedParams.scale);
+      setPanX(savedParams.panX);
+      setPanY(savedParams.panY);
+    }
+  };
 
   return (
     <div className="flex flex-col md:flex-row items-start md:gap-10 min-h-screen bg-gray-100 p-10">
@@ -26,24 +84,32 @@ export default function FractalGenerator() {
         panX={panX}
         panY={panY}
       />
-      <FractalControls
-        isJulia={isJulia}
-        setIsJulia={setIsJulia}
-        iterations={iterations}
-        setIterations={setIterations}
-        scale={scale}
-        setScale={setScale}
-        panX={panX}
-        setPanX={setPanX}
-        panY={panY}
-        setPanY={setPanY}
-        hue={hue}
-        setHue={setHue}
-        juliaReal={juliaReal}
-        setJuliaReal={setJuliaReal}
-        juliaImag={juliaImag}
-        setJuliaImag={setJuliaImag}
-      />
+      <div className="flex flex-col gap-4">
+        <FractalControls
+          isJulia={isJulia}
+          setIsJulia={setIsJulia}
+          iterations={iterations}
+          setIterations={setIterations}
+          scale={scale}
+          setScale={setScale}
+          panX={panX}
+          setPanX={setPanX}
+          panY={panY}
+          setPanY={setPanY}
+          hue={hue}
+          setHue={setHue}
+          juliaReal={juliaReal}
+          setJuliaReal={setJuliaReal}
+          juliaImag={juliaImag}
+          setJuliaImag={setJuliaImag}
+        />
+        <div className="flex gap-2">
+          <Button onClick={saveCurrentParams}>Save Config</Button>
+          <Button onClick={loadSavedParams} variant="outline">
+            Load Config
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }
