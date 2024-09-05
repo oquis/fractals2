@@ -51,7 +51,7 @@ export function FractalControls({
 
   const calculatePanStep = (scale: number) => {
     // As scale decreases (zooming in), step should decrease
-    return Math.max(0.001 / scale, 0.00000001); // Minimum step of 1e-8
+    return Math.max(0.001 * scale, 0.00000001); // Minimum step of 1e-8
   };
 
   // Use a fixed range for panning
