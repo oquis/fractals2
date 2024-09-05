@@ -20,7 +20,7 @@ export function FractalCanvas(props: FractalCanvasProps) {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext("webgl") || canvas.getContext("2d");
+    const ctx = canvas.getContext("webgl2") || canvas.getContext("2d");
     if (!ctx) return;
 
     const fractalParams = {
@@ -40,7 +40,7 @@ export function FractalCanvas(props: FractalCanvasProps) {
     );
 
     const renderFn =
-      ctx instanceof WebGLRenderingContext ? webglRenderer : canvasRenderer;
+      ctx instanceof WebGL2RenderingContext ? webglRenderer : canvasRenderer;
     renderFn(fractalData, props.hue, ctx, maxIterations, fractalParams);
   }, [props]);
 

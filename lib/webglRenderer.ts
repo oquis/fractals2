@@ -1,13 +1,13 @@
 import { RenderFunction } from "./renderers";
 
-const vertexShaderSource = `
-  attribute vec4 a_position;
+const vertexShaderSource = `#version 300 es
+  in vec4 a_position;
   void main() {
     gl_Position = a_position;
   }
 `;
 
-const fragmentShaderSource = `
+const fragmentShaderSource = `#version 300 es
   precision mediump float;
 
   uniform vec2 u_resolution;
@@ -17,6 +17,8 @@ const fragmentShaderSource = `
   uniform float u_hue;
   uniform bool u_isJulia;
   uniform vec2 u_juliaC;
+
+  out vec4 fragColor;
 
   vec3 hslToRgb(float h, float s, float l) {
     vec3 rgb = clamp(abs(mod(h * 6.0 + vec3(0.0, 4.0, 2.0), 6.0) - 3.0) - 1.0, 0.0, 1.0);
@@ -45,18 +47,18 @@ const fragmentShaderSource = `
     }
 
     if (i >= u_maxIterations) {
-      gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+      fragColor = vec4(0.0, 0.0, 0.0, 1.0);
     } else {
       float t = float(i) / float(u_maxIterations);
       float hue = mod(u_hue + t * 360.0, 360.0) / 360.0;
       vec3 color = hslToRgb(hue, 1.0, 0.5);
-      gl_FragColor = vec4(color, 1.0);
+      fragColor = vec4(color, 1.0);
     }
   }
 `;
 
 function createShader(
-  gl: WebGLRenderingContext,
+  gl: WebGL2RenderingContext,
   type: number,
   source: string,
 ): WebGLShader | null {
@@ -78,7 +80,7 @@ function createShader(
 }
 
 function createProgram(
-  gl: WebGLRenderingContext,
+  gl: WebGL2RenderingContext,
   vertexShader: WebGLShader,
   fragmentShader: WebGLShader,
 ): WebGLProgram | null {
@@ -108,7 +110,7 @@ export const webglRenderer: RenderFunction = (
   maxIterations,
   params,
 ) => {
-  const gl = ctx as WebGLRenderingContext;
+  const gl = ctx as WebGL2RenderingContext;
 
   console.log("Creating vertex shader...");
   const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
@@ -137,8 +139,11 @@ export const webglRenderer: RenderFunction = (
 
   gl.useProgram(program);
 
-  // Set up attributes and uniforms
+  // Set up attributes
   const positionAttributeLocation = gl.getAttribLocation(program, "a_position");
+  const vao = gl.createVertexArray();
+  gl.bindVertexArray(vao);
+
   const positionBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
   const positions = [-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1];
@@ -171,5 +176,6 @@ export const webglRenderer: RenderFunction = (
   gl.clearColor(0, 0, 0, 0);
   gl.clear(gl.COLOR_BUFFER_BIT);
 
+  gl.bindVertexArray(vao);
   gl.drawArrays(gl.TRIANGLES, 0, 6);
 };
