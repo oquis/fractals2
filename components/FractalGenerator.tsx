@@ -73,7 +73,7 @@ export default function FractalGenerator() {
   };
 
   return (
-    <div className="flex flex-col md:flex-row items-start md:gap-10 min-h-screen bg-gray-100 p-10">
+    <div className="flex flex-col md:flex-row items-start md:gap-10 min-h-screen bg-gray-100 lg:p-10">
       <FractalCanvas
         hue={hue}
         isJulia={isJulia}
@@ -84,7 +84,7 @@ export default function FractalGenerator() {
         panX={panX}
         panY={panY}
       />
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 w-full md:max-w-md p-2 md:p-0">
         <FractalControls
           isJulia={isJulia}
           setIsJulia={setIsJulia}
@@ -103,10 +103,17 @@ export default function FractalGenerator() {
           juliaImag={juliaImag}
           setJuliaImag={setJuliaImag}
         />
-        <div className="flex gap-2">
-          <Button onClick={saveCurrentParams}>Save Config</Button>
-          <Button onClick={loadSavedParams} variant="outline">
-            Load Config
+        <div className="flex gap-2 bg-white rounded-lg p-4 shadow">
+          <Button className="flex-1" size="sm" onClick={saveCurrentParams}>
+            Save Params
+          </Button>
+          <Button
+            className="flex-1"
+            size="sm"
+            onClick={loadSavedParams}
+            variant="outline"
+          >
+            Load Params
           </Button>
         </div>
       </div>

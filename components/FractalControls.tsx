@@ -138,8 +138,6 @@ export function FractalControls({
           {panX.toFixed(
             Math.max(2, Math.abs(Math.floor(Math.log10(panStep))) + 2),
           )}
-          {" | "}Step: {panStep}
-          {" | "}Range: {PAN_RANGE}
         </div>
       </div>
 
@@ -158,8 +156,6 @@ export function FractalControls({
           {panY.toFixed(
             Math.max(2, Math.abs(Math.floor(Math.log10(panStep))) + 2),
           )}
-          {" | "}Step: {panStep}
-          {" | "}Range: {PAN_RANGE}
         </div>
       </div>
       <div>
