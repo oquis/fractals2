@@ -49,17 +49,17 @@ export function FractalControls({
     setFractalType(isJulia ? "julia" : "mandelbrot");
   }, [isJulia]);
 
-  const calculatePanStep = (scale: number) => {
+  function calculatePanStep(scale: number) {
     // As scale decreases (zooming in), step should decrease
     return Math.max(0.001 * scale, 0.00000001); // Minimum step of 1e-8
-  };
+  }
 
   // Use a fixed range for panning
   const PAN_RANGE = 2; // This gives a total range of -2 to 2
 
   const panStep = calculatePanStep(scale);
 
-  const resetControls = () => {
+  function resetControls() {
     setIsJulia(false);
     setFractalType("mandelbrot");
     setIterations(100);
@@ -69,7 +69,7 @@ export function FractalControls({
     setHue(0);
     setJuliaReal(-0.7);
     setJuliaImag(0.27015);
-  };
+  }
 
   return (
     <div className="w-full md:max-w-md bg-white p-4 rounded-lg shadow space-y-4">

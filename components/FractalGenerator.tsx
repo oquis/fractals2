@@ -9,6 +9,7 @@ import {
 import { FractalCanvas } from "./FractalCanvas";
 import { FractalControls } from "./FractalControls";
 import { Button } from "./ui/button";
+import { useState } from "react";
 
 interface FractalParams {
   hue: number;
@@ -24,20 +25,20 @@ interface FractalParams {
 const STORAGE_KEY = "oquis.fractalParams";
 
 // Function to store params in local storage
-const storeParams = (params: FractalParams) => {
+function storeParams(params: FractalParams) {
   if (typeof window !== "undefined") {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(params));
   }
-};
+}
 
 // Function to load params from local storage
-const loadParams = (): FractalParams | null => {
+function loadParams(): FractalParams | null {
   if (typeof window !== "undefined") {
     const storedParams = localStorage.getItem(STORAGE_KEY);
     return storedParams ? JSON.parse(storedParams) : null;
   }
   return null;
-};
+}
 
 export default function FractalGenerator() {
   const [hue, setHue] = useQueryState("hue", parseAsInteger.withDefault(0));
@@ -101,6 +102,8 @@ export default function FractalGenerator() {
         panX={panX}
         panY={panY}
         setScale={setScale}
+        setPanX={setPanX}
+        setPanY={setPanY}
       />
       <div className="flex flex-col gap-4 w-full md:max-w-md p-2 md:p-0">
         <FractalControls
