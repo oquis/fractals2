@@ -62,7 +62,7 @@ export function FractalCanvas(props: FractalCanvasProps) {
     }
 
     function handleMouseMove(e: MouseEvent) {
-      if (!isDraggingRef.current) return;
+      if (!isDraggingRef.current || !canvas) return;
 
       const dx = e.clientX - lastMousePosRef.current.x;
       const dy = e.clientY - lastMousePosRef.current.y;
