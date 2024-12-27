@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useQueryState } from "nuqs";
 import { FractalCanvas } from "./FractalCanvas";
 import { FractalControls } from "./FractalControls";
 import { Button } from "./ui/button";
@@ -35,25 +35,33 @@ const loadParams = (): FractalParams | null => {
 };
 
 export default function FractalGenerator() {
-  const [hue, setHue] = useState(0);
-  const [isJulia, setIsJulia] = useState(false);
-  const [juliaReal, setJuliaReal] = useState(-0.7);
-  const [juliaImag, setJuliaImag] = useState(0.27015);
-  const [iterations, setIterations] = useState(100);
-  const [scale, setScale] = useState(4);
-  const [panX, setPanX] = useState(0);
-  const [panY, setPanY] = useState(0);
+  const [hue, setHue] = useQueryState("hue", { defaultValue: "0" });
+  const [isJulia, setIsJulia] = useQueryState("isJulia", {
+    defaultValue: "false",
+  });
+  const [juliaReal, setJuliaReal] = useQueryState("juliaReal", {
+    defaultValue: "-0.7",
+  });
+  const [juliaImag, setJuliaImag] = useQueryState("juliaImag", {
+    defaultValue: "0.27015",
+  });
+  const [iterations, setIterations] = useQueryState("iterations", {
+    defaultValue: "100",
+  });
+  const [scale, setScale] = useQueryState("scale", { defaultValue: "4" });
+  const [panX, setPanX] = useQueryState("panX", { defaultValue: "0" });
+  const [panY, setPanY] = useQueryState("panY", { defaultValue: "0" });
 
   const saveCurrentParams = () => {
     const params: FractalParams = {
-      hue,
-      isJulia,
-      juliaReal,
-      juliaImag,
-      iterations,
-      scale,
-      panX,
-      panY,
+      hue: Number(hue),
+      isJulia: isJulia === "true",
+      juliaReal: Number(juliaReal),
+      juliaImag: Number(juliaImag),
+      iterations: Number(iterations),
+      scale: Number(scale),
+      panX: Number(panX),
+      panY: Number(panY),
     };
     storeParams(params);
   };
@@ -61,47 +69,47 @@ export default function FractalGenerator() {
   const loadSavedParams = () => {
     const savedParams = loadParams();
     if (savedParams) {
-      setHue(savedParams.hue);
-      setIsJulia(savedParams.isJulia);
-      setJuliaReal(savedParams.juliaReal);
-      setJuliaImag(savedParams.juliaImag);
-      setIterations(savedParams.iterations);
-      setScale(savedParams.scale);
-      setPanX(savedParams.panX);
-      setPanY(savedParams.panY);
+      setHue(savedParams.hue.toString());
+      setIsJulia(savedParams.isJulia.toString());
+      setJuliaReal(savedParams.juliaReal.toString());
+      setJuliaImag(savedParams.juliaImag.toString());
+      setIterations(savedParams.iterations.toString());
+      setScale(savedParams.scale.toString());
+      setPanX(savedParams.panX.toString());
+      setPanY(savedParams.panY.toString());
     }
   };
 
   return (
     <div className="flex flex-col md:flex-row items-start md:gap-10 min-h-screen bg-gray-100 lg:p-10">
       <FractalCanvas
-        hue={hue}
-        isJulia={isJulia}
-        juliaReal={juliaReal}
-        juliaImag={juliaImag}
-        iterations={iterations}
-        scale={scale}
-        panX={panX}
-        panY={panY}
+        hue={Number(hue)}
+        isJulia={isJulia === "true"}
+        juliaReal={Number(juliaReal)}
+        juliaImag={Number(juliaImag)}
+        iterations={Number(iterations)}
+        scale={Number(scale)}
+        panX={Number(panX)}
+        panY={Number(panY)}
       />
       <div className="flex flex-col gap-4 w-full md:max-w-md p-2 md:p-0">
         <FractalControls
-          isJulia={isJulia}
-          setIsJulia={setIsJulia}
-          iterations={iterations}
-          setIterations={setIterations}
-          scale={scale}
-          setScale={setScale}
-          panX={panX}
-          setPanX={setPanX}
-          panY={panY}
-          setPanY={setPanY}
-          hue={hue}
-          setHue={setHue}
-          juliaReal={juliaReal}
-          setJuliaReal={setJuliaReal}
-          juliaImag={juliaImag}
-          setJuliaImag={setJuliaImag}
+          isJulia={isJulia === "true"}
+          setIsJulia={(value) => setIsJulia(value.toString())}
+          iterations={Number(iterations)}
+          setIterations={(value) => setIterations(value.toString())}
+          scale={Number(scale)}
+          setScale={(value) => setScale(value.toString())}
+          panX={Number(panX)}
+          setPanX={(value) => setPanX(value.toString())}
+          panY={Number(panY)}
+          setPanY={(value) => setPanY(value.toString())}
+          hue={Number(hue)}
+          setHue={(value) => setHue(value.toString())}
+          juliaReal={Number(juliaReal)}
+          setJuliaReal={(value) => setJuliaReal(value.toString())}
+          juliaImag={Number(juliaImag)}
+          setJuliaImag={(value) => setJuliaImag(value.toString())}
         />
         <div className="flex gap-2 bg-white rounded-lg p-4 shadow">
           <Button className="flex-1" size="sm" onClick={saveCurrentParams}>
