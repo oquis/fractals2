@@ -180,11 +180,11 @@ export function FractalControls({
               onValueChange={([value]) => setJuliaReal(value)}
               min={-2}
               max={2}
-              step={0.01}
+              step={0.0005}
               className="w-full"
             />
             <div className="text-sm text-gray-600">
-              Real: {juliaReal.toFixed(2)}
+              Real: {juliaReal.toFixed(4)}
             </div>
           </div>
           <div>
@@ -195,11 +195,11 @@ export function FractalControls({
               onValueChange={([value]) => setJuliaImag(value)}
               min={-2}
               max={2}
-              step={0.01}
+              step={0.0005}
               className="w-full"
             />
             <div className="text-sm text-gray-600">
-              Imaginary: {juliaImag.toFixed(2)}
+              Imaginary: {juliaImag.toFixed(4)}
             </div>
           </div>
         </div>
