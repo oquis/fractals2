@@ -1,5 +1,10 @@
 import FractalGenerator from "@/components/FractalGenerator";
+import { Suspense } from "react";
 
 export default function Home() {
-  return <FractalGenerator />;
+  return (
+    <Suspense>
+      <FractalGenerator />;
+    </Suspense>
+  );
 }
