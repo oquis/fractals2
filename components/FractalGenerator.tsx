@@ -100,6 +100,7 @@ export default function FractalGenerator() {
         scale={scale}
         panX={panX}
         panY={panY}
+        setScale={setScale}
       />
       <div className="flex flex-col gap-4 w-full md:max-w-md p-2 md:p-0">
         <FractalControls

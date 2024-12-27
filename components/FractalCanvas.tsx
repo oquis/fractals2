@@ -12,7 +12,9 @@ interface FractalCanvasProps {
   scale: number;
   panX: number;
   panY: number;
+  setScale: (scale: number) => void;
 }
+
 export function FractalCanvas(props: FractalCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -42,6 +44,16 @@ export function FractalCanvas(props: FractalCanvasProps) {
     const renderFn =
       ctx instanceof WebGL2RenderingContext ? webglRenderer : canvasRenderer;
     renderFn(fractalData, props.hue, ctx, maxIterations, fractalParams);
+
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const zoomFactor = 1.1;
+      const delta = e.deltaY > 0 ? zoomFactor : 1 / zoomFactor;
+      props.setScale(props.scale * delta);
+    };
+
+    canvas.addEventListener("wheel", handleWheel);
+    return () => canvas.removeEventListener("wheel", handleWheel);
   }, [props]);
 
   return (
